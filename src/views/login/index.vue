@@ -56,11 +56,16 @@
       </el-form>
     </div>
     <img src="./img/login_banner_ele.png" alt />
+    <register></register>
   </div>
 </template>
 
 <script>
+import register from "./components/register";
 export default {
+  components: {
+    register
+  },
   data() {
     return {
       form: {
@@ -68,7 +73,7 @@ export default {
         password: "",
         code: "",
         // type: [],
-        type:false
+        type: false
       },
       rules: {
         user: [
@@ -86,7 +91,7 @@ export default {
         type: [
           {
             // required: true,
-            pattern:/true/,
+            pattern: /true/,
             message: "请勾选我已阅读并同意用户协议和隐私条款",
             trigger: "change"
           }
@@ -160,8 +165,8 @@ export default {
         margin-top: -3px;
       }
     }
-    .el-button{
-      &:nth-child(2){
+    .el-button {
+      &:nth-child(2) {
         margin-left: 0px;
         margin-top: 26px;
       }
