@@ -67,7 +67,8 @@ export default {
         user: "",
         password: "",
         code: "",
-        type: []
+        // type: [],
+        type:false
       },
       rules: {
         user: [
@@ -76,7 +77,7 @@ export default {
         ],
         password: [
           { required: true, message: "密码不能为空", trigger: "blur" },
-          { min: 6, max: 12, message: "请输入正确的密码", trigger: "blur" }
+          { min: 6, max: 12, message: "请输入正确的密码", trigger: "change" }
         ],
         code: [
           { required: true, message: "验证码不能为空", trigger: "blur" },
@@ -84,7 +85,8 @@ export default {
         ],
         type: [
           {
-            required: true,
+            // required: true,
+            pattern:/true/,
             message: "请勾选我已阅读并同意用户协议和隐私条款",
             trigger: "change"
           }
