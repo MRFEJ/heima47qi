@@ -8,8 +8,8 @@
         <span class="box-s">用户登录</span>
       </div>
       <el-form ref="form" :model="form" label-width="0px" :rules="rules">
-        <el-form-item prop="user">
-          <el-input placeholder="请输入手机号" clearable v-model="form.user" prefix-icon="el-icon-user"></el-input>
+        <el-form-item prop="phone">
+          <el-input placeholder="请输入手机号" clearable v-model="form.phone" prefix-icon="el-icon-user"></el-input>
         </el-form-item>
 
         <el-form-item prop="password">
@@ -33,7 +33,7 @@
               ></el-input>
             </el-col>
             <el-col :span="6">
-              <img class="yz" src="./img/code.png" alt />
+              <img @click="clCode" class="yz" :src="imgUrl" alt />
             </el-col>
           </el-row>
         </el-form-item>
@@ -62,6 +62,7 @@
 </template>
 
 <script>
+import {login} from "@/api/login.js"
 import register from "./components/register";
 export default {
   components: {
@@ -69,25 +70,28 @@ export default {
   },
   data() {
     return {
+      // 图形验证码
+      imgUrl: process.env.VUE_APP_URL + "/captcha?type=login",
+
       form: {
-        user: "",
+        phone: "",
         password: "",
         code: "",
         // type: [],
         type: false
       },
       rules: {
-        user: [
+        phone: [
           { required: true, message: "手机号不能为空", trigger: "blur" },
-          { min: 11, max: 11, message: "请输入正确的手机号", trigger: "blur" }
+          { pattern:/0?(13|14|15|18)[0-9]{9}/, message: "请输入正确的手机号", trigger: "blur" }
         ],
         password: [
           { required: true, message: "密码不能为空", trigger: "blur" },
-          { min: 6, max: 12, message: "请输入正确的密码", trigger: "change" }
+          { min: 6, max: 12, message: "请输入6-12位的密码", trigger: "change" }
         ],
         code: [
           { required: true, message: "验证码不能为空", trigger: "blur" },
-          { min: 3, max: 5, message: "请输入验证码", trigger: "blur" }
+          { min: 4, max: 4, message: "验证码是4位", trigger: "blur" }
         ],
         type: [
           {
@@ -101,19 +105,35 @@ export default {
     };
   },
   methods: {
+    // 效验全部表单
     submitForm() {
       this.$refs.form.validate(valid => {
         if (valid) {
-          alert("submit!");
-        } else {
-          console.log("error submit!!");
-          return false;
+          login({
+            phone:this.form.phone,
+            password:this.form.password,
+            code:this.form.code
+          }).then(res=>{
+            window.console.log(res);
+            if(res.data.code==200){
+              this.$message.success('登陆成功!');
+              window.localStorage.setItem('token',res.data.data.token);
+              this.$router.push('/index')
+            }else{
+              this.clCode()
+              this.$message.error(res.data.message)
+            }
+          })
         }
       });
     },
     // 注册的点击事件
-    submitForm2(){
-      this.$refs.register.dialogFormVisible=true;
+    submitForm2() {
+      this.$refs.register.dialogFormVisible = true;
+    },
+    // 图形验证码的点击事件
+    clCode(){
+      this.imgUrl= process.env.VUE_APP_URL + "/captcha?type=login&d="+Date.now();
     }
   }
 };
