@@ -49,14 +49,15 @@
           <el-row>
             <el-col>
               <el-button style="width:100%" type="primary" @click="submitForm">登陆</el-button>
-              <el-button style="width:100%" type="primary" @click="submitForm">注册</el-button>
+              <el-button style="width:100%" type="primary" @click="submitForm2">注册</el-button>
             </el-col>
           </el-row>
         </el-form-item>
       </el-form>
     </div>
     <img src="./img/login_banner_ele.png" alt />
-    <register></register>
+    <!-- 导入子组件 -->
+    <register ref="register"></register>
   </div>
 </template>
 
@@ -109,6 +110,10 @@ export default {
           return false;
         }
       });
+    },
+    // 注册的点击事件
+    submitForm2(){
+      this.$refs.register.dialogFormVisible=true;
     }
   }
 };
