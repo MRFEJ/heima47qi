@@ -109,7 +109,7 @@ export default {
         phone: [
           { required: true, message: "昵手机号不能为空", trigger: "blur" },
           {
-            pattern: /0?(13|14|15|18)[0-9]{9}/,
+            pattern: /^0?(13|14|15|18)[0-9]{9}$/,
             message: "手机号格式不正确",
             trigger: "blur"
           }
@@ -222,6 +222,8 @@ export default {
     },
 
     handleAvatarSuccess(res, file) {
+      window.console.log(res,file);
+      
       // 把返回的文件转成一个虚拟路径赋值给imggeUrl
       this.imageUrl = URL.createObjectURL(file.raw);
       // 把服务器返回的真实地址给avatar

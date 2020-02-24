@@ -64,6 +64,8 @@
 <script>
 import {login} from "@/api/login.js"
 import register from "./components/register";
+// 导入token
+import {setToken} from "@/utils/token.js"
 export default {
   components: {
     register
@@ -83,7 +85,7 @@ export default {
       rules: {
         phone: [
           { required: true, message: "手机号不能为空", trigger: "blur" },
-          { pattern:/0?(13|14|15|18)[0-9]{9}/, message: "请输入正确的手机号", trigger: "blur" }
+          { pattern:/^0?(13|14|15|18)[0-9]{9}$/, message: "手机号格式不正确", trigger: "blur" }
         ],
         password: [
           { required: true, message: "密码不能为空", trigger: "blur" },
@@ -117,7 +119,7 @@ export default {
             window.console.log(res);
             if(res.data.code==200){
               this.$message.success('登陆成功!');
-              window.localStorage.setItem('token',res.data.data.token);
+              setToken(res.data.data.token)
               this.$router.push('/index')
             }else{
               this.clCode()
