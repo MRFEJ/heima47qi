@@ -73,11 +73,10 @@ export default {
   data() {
     return {
       // 图形验证码
-      imgUrl: process.env.VUE_APP_URL + "/captcha?type=login",
-
+      imgUrl:process.env.VUE_APP_URL + "/captcha?type=login",
       form: {
-        phone: "",
-        password: "",
+        phone: "13888888888",
+        password: "123456",
         code: "",
         // type: [],
         type: false
@@ -116,7 +115,7 @@ export default {
             password:this.form.password,
             code:this.form.code
           }).then(res=>{
-            window.console.log(res);
+            // window.console.log(res);
             if(res.data.code==200){
               this.$message.success('登陆成功!');
               setToken(res.data.data.token)
