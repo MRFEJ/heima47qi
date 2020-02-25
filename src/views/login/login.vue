@@ -79,7 +79,7 @@ export default {
         password: "123456",
         code: "",
         // type: [],
-        type: false
+        type: true
       },
       rules: {
         phone: [
