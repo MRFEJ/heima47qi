@@ -12,6 +12,9 @@ import { removeToken } from "@/utils/token.js"
 // 单独引入message
 import { Message } from 'element-ui';
 
+// 导入vuex对象
+import store from "../store/index"
+
 import overview from "@/views/index/overview/overview.vue"
 import user from "@/views/index/user/user.vue"
 import question from "@/views/index/question/question.vue"
@@ -30,18 +33,18 @@ const router = new VueRouter({
     {
       path: '/login',
       component: login,
-      meta:{title:"登录"}
+      meta: { title: "登录" }
     },
     {
       path: '/index',
       component: index,
-      meta:{title:"首页"},
+      meta: { title: "首页" },
       children: [
-        { path: 'overview', component: overview,meta:{title:"数据概览"} },
-        { path: 'user', component: user,meta:{title:"用户列表"} },
-        { path: 'question', component: question,meta:{title:"题库列表"} },
-        { path: 'enterprise', component: enterprise,meta:{title:"企业列表"} },
-        { path: 'discipline', component: discipline,meta:{title:"学科列表"} }
+        { path: 'overview', component: overview, meta: { title: "数据概览" } },
+        { path: 'user', component: user, meta: { title: "用户列表" } },
+        { path: 'question', component: question, meta: { title: "题库列表" } },
+        { path: 'enterprise', component: enterprise, meta: { title: "企业列表" } },
+        { path: 'discipline', component: discipline, meta: { title: "学科列表" } }
       ]
     },
     {
@@ -51,7 +54,7 @@ const router = new VueRouter({
 
   ]
 })
-let whiteArr = ["/login", "news"]
+let whiteArr = ["/login", "/news"]
 // 导航守卫前 当路由的路径发生改变就触发
 router.beforeEach((to, from, next) => {
   // to and from are both route objects. must call `next`.
@@ -61,6 +64,8 @@ router.beforeEach((to, from, next) => {
   } else {
     info().then(res => {
       if (res.data.code == 200) {
+        store.commit('changeUsername', res.data.data.username);
+        store.commit('changeAvatar', process.env.VUE_APP_URL+"/"+res.data.data.avatar);
         next();
       } else if (res.data.code == 206) {
         // 如果token错误就删除token
@@ -80,7 +85,7 @@ router.beforeEach((to, from, next) => {
 // 导航守卫后
 router.afterEach((to) => {
   // window.console.log(to, from);
-  document.title=to.meta.title
+  document.title = to.meta.title
   // to and from are both route objects.
   nprogress.done();
 })

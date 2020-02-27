@@ -11,8 +11,8 @@
         <span class="title">黑马面面</span>
       </div>
       <div class="right">
-        <img class="avatar" :src="avatar" alt />
-        <span class="name">{{username}},你好</span>
+        <img class="avatar" :src="$store.state.avatar" alt />
+        <span class="name">{{$store.state.username}},你好</span>
         <el-button @click="goOut" type="primary" size="mini">退出</el-button>
       </div>
     </el-header>
@@ -55,14 +55,14 @@
 </template>
 
 <script>
-import { info } from "@/api/index.js";
+// import { info } from "@/api/index.js";
 import { logout } from "@/api/index.js";
-import { removeToken,getToken } from "@/utils/token.js";
+import { removeToken, getToken } from "@/utils/token.js";
 export default {
   beforeCreate() {
-    if(!getToken()){
-      this.$message.error('请先登录!');
-      this.$router.push('/login')
+    if (!getToken()) {
+      this.$message.error("请先登录!");
+      this.$router.push("/login");
     }
   },
   data() {
@@ -75,15 +75,15 @@ export default {
       isCollapse: false
     };
   },
-  created() {
-    info().then(res => {
-      //   window.console.log(res);
-      this.username = res.data.data.username;
-      // 这里返回的地址不完整,要在前面拼接一个基地址,并且中间还要加斜杆 /
-      this.avatar = process.env.VUE_APP_URL + "/" + res.data.data.avatar;
-      // console.log(11111);
-    });
-  },
+  // created() {
+  //   info().then(res => {
+  //     //   window.console.log(res);
+  //     this.username = res.data.data.username;
+  //     // 这里返回的地址不完整,要在前面拼接一个基地址,并且中间还要加斜杆 /
+  //     this.avatar = process.env.VUE_APP_URL + "/" + res.data.data.avatar;
+  //     // console.log(11111);
+  //   });
+  // },
   methods: {
     //   点击退出
     goOut() {
@@ -98,6 +98,10 @@ export default {
             if (res.data.code == 200) {
               this.$message.success("退出成功!");
               removeToken();
+              // 删除vuex里面的数据
+              this.$store.commit("changeUsername", "");
+              this.$store.commit("changeAvatar", "");
+
               this.$router.push("/login");
             }
           });
@@ -108,7 +112,7 @@ export default {
             message: "谢谢您还留下来!!!"
           });
         });
-    },
+    }
   }
 };
 </script>
