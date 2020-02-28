@@ -1,40 +1,48 @@
 <template>
-  <div>
+  <div class="qie">
+    <!-- 上面一个卡片 -->
     <el-card class="box-card">
-      <el-form :inline="true" :model="formInline" class="demo-form-inline">
-        <el-form-item label="学科名字">
-          <el-input class="short" v-model="formInline.user"></el-input>
+      <el-form ref="form" :inline="true" :model="formInline" class="demo-form-inline">
+        <el-form-item label="学科编号" prop="rid">
+          <el-input class="short" v-model="formInline.rid"></el-input>
         </el-form-item>
 
-        <el-form-item label="学科编号">
-          <el-input class="long" v-model="formInline.user"></el-input>
+        <el-form-item label="学科名称" prop="name">
+          <el-input class="long" v-model="formInline.name"></el-input>
         </el-form-item>
-        <el-form-item label="创建者">
-          <el-input class="short" v-model="formInline.user"></el-input>
+        <el-form-item label="创建者" prop="username">
+          <el-input class="short" v-model="formInline.username"></el-input>
         </el-form-item>
 
-        <el-form-item label="状态">
-          <el-select class="long" v-model="formInline.region" placeholder="请选择状态">
-            <el-option label="区域一" value="shanghai"></el-option>
-            <el-option label="区域二" value="beijing"></el-option>
+        <el-form-item label="状态" prop="status">
+          <el-select class="long" v-model="formInline.status" placeholder="请选择状态">
+            <el-option label="启用" value="1"></el-option>
+            <el-option label="禁用" value="0"></el-option>
           </el-select>
         </el-form-item>
 
         <el-form-item>
-          <el-button type="primary" @click="onSubmit">搜索</el-button>
-          <el-button @click="onSubmit">清除</el-button>
-          <el-button icon="el-icon-plus" type="primary" @click="onSubmit">新增学科</el-button>
+          <el-button type="primary" @click="search">搜索</el-button>
+          <el-button @click="del">清除</el-button>
+          <el-button
+            @click="$refs.disciplineAdd.dialogFormVisible=true"
+            icon="el-icon-plus"
+            type="primary"
+          >新增学科</el-button>
         </el-form-item>
       </el-form>
     </el-card>
-    <el-card class="box-card">
+    <!-- 下面一个卡片 -->
+    <el-card class="box-card1">
       <el-table :data="tableData" style="width: 100%">
         <el-table-column type="index" label="序号" width="50"></el-table-column>
         <el-table-column prop="rid" label="学科编号"></el-table-column>
         <el-table-column prop="name" label="学科名称"></el-table-column>
         <el-table-column prop="short_name" label="简称"></el-table-column>
         <el-table-column prop="username" label="创建者"></el-table-column>
-        <el-table-column prop="create_time" label="创建日期"></el-table-column>
+        <el-table-column label="创建日期">
+          <template slot-scope="scope">{{scope.row.create_time|filterData}}</template>
+        </el-table-column>
         <el-table-column label="状态">
           <template slot-scope="scope">
             <span v-if="scope.row.status==1">启用</span>
@@ -43,48 +51,66 @@
         </el-table-column>
         <el-table-column prop="date" label="操作">
           <template slot-scope="scope">
-            <el-button size="mini" type="text">编辑</el-button>
+            <el-button size="mini" @click="editBj(scope.row)" type="text">编辑</el-button>
             <el-button
               size="mini"
               type="text"
               @click="stop(scope.row.id)"
             >{{scope.row.status? '禁用':'启用'}}</el-button>
-            <el-button size="mini" type="text">删除</el-button>
+            <el-button @click="dels(scope.row.id)" size="mini" type="text">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
       <!-- 分页 -->
       <div class="page">
         <el-pagination
+          background
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
           :current-page="currentPage"
-          :page-sizes="[10, 20, 30, 40]"
+          :page-sizes="[5, 10, 15, 20]"
           :page-size="size"
           :total="pages"
           layout="total, sizes, prev, pager, next, jumper"
         ></el-pagination>
       </div>
     </el-card>
+    <!-- 新增 -->
+    <disciplineAdd ref="disciplineAdd"></disciplineAdd>
+    <!-- 编辑 -->
+    <disciplineEdit ref="disciplineEdit"></disciplineEdit>
   </div>
 </template>
 
 <script>
-// 获取学科列表和禁用或开启状态
-import { discipline, status } from "@/api/discipline.js";
+// 导入编辑组件
+import disciplineEdit from "./components/disciplineEdit";
+// 导入新增学科组件
+import disciplineAdd from "./components/disciplineAdd";
+// 获取学科列表和 禁用或开启状态和 删除学科
+import { discipline, status, remove } from "@/api/discipline.js";
 export default {
+  name: "discipline",
+  components: {
+    disciplineAdd,
+    disciplineEdit
+  },
   data() {
     return {
       // 页容量
       size: 5,
       // 服务器返回的总条数
       pages: 0,
-      // // 当前页数
+      // // 当前页码
       currentPage: 1,
       // 表单数据
       formInline: {
-        user: "",
-        region: ""
+        rid: "",
+        name: "",
+        username: "",
+        status: "",
+        // 保存当前行的数据
+        oldItem: ""
       },
       // 表单数组
       tableData: []
@@ -95,17 +121,28 @@ export default {
     this.list();
   },
   methods: {
-    // 用户列表
+    // 点击编辑
+    editBj(item) {
+      // window.console.log(item);
+      
+      this.$refs.disciplineEdit.dialogFormVisible = true;
+      // 判断是不是第一次点击的那一行 如果不是就赋值 并且保存当前行的数据
+      if (item != this.oldItem) {
+        this.$refs.disciplineEdit.form = { ...item };
+        this.oldItem = item;
+      }
+    },
+    // 获取用户列表
     list() {
       discipline({
         // 传1是代表要服务器 返回第一页的内容
-        page: 1,
-        // 传的是要服务器返回每页8条数据
-        limit: 5
+        page: this.currentPage,
+        // 传的是要服务器返回每页5条数据
+        limit: this.size,
+        ...this.formInline
       }).then(res => {
-        window.console.log(res);
+        // window.console.log(res);
         this.tableData = res.data.data.items;
-        this.currentPage = +res.data.data.pagination.page;
         this.pages = res.data.data.pagination.total;
       });
     },
@@ -115,24 +152,63 @@ export default {
     },
     // 分页
     handleSizeChange(val) {
-      console.log(`每页 ${val} 条`);
+      // console.log(`每页 ${val} 条`);
+      // 改变页容量 把改变的数目重新赋值  并从第一页开始查询
+      this.size = val;
+      this.currentPage = 1;
+      // 发送请求
+      this.list();
     },
     handleCurrentChange(val) {
-      console.log(`当前页: ${val}`);
+      // console.log(`当前页: ${val}`);
+      // 改变当前页 把请求的当前页码重新赋值 在发送请求
+      this.currentPage = val;
+      // 发送请求
+      this.list();
     },
     // 点击禁用
     stop(id) {
-      status({ id });
+      status({ id }).then(() => {
+        this.list();
+      });
+    },
+
+    // 搜索
+    search() {
       this.list();
+    },
+
+    // 清除表单内的数据
+    del() {
+      this.$refs.form.resetFields();
+      this.list();
+    },
+
+    // 删除学科
+    dels(id) {
+      remove({ id }).then(res => {
+        // window.console.log(res);
+        if (res.data.code == 200) {
+          // 如果当前页只有一行数据 把他删除了之后要显示上一页的数据
+          if (this.tableData.length == 1) {
+            this.currentPage--;
+          }
+          // 如果是第0页就改成第一页
+          if (this.currentPage == 0) {
+            this.currentPage = 1;
+          }
+          this.$message.success("删除成功!");
+          this.list();
+        }
+      });
     }
   }
 };
 </script>
 
 <style>
-.box-card:nth-child(2) {
+.box-card1 {
   margin-top: 19px;
-  height: 283px;
 }
 .box-card .short {
   width: 100px;

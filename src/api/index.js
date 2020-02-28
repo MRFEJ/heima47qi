@@ -5,6 +5,7 @@ import { getToken } from "@/utils/token.js"
 
 let indexRequest = axios.create({
     baseURL: process.env.VUE_APP_URL,
+    withCredentials:true,
 })
 
 // 拦截请求的axios

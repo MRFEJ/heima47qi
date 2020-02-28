@@ -180,6 +180,7 @@ body {
   }
   .my_main {
     background-color: yellowgreen;
+    overflow: hidden;
   }
 }
 </style>

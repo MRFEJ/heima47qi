@@ -3,7 +3,8 @@ import axios from "axios"
 import { getToken } from "@/utils/token.js"
 
 let disciplineRequery = axios.create({
-    baseURL:process.env.VUE_APP_URL
+    baseURL: process.env.VUE_APP_URL,
+    withCredentials:true
 })
 
 disciplineRequery.interceptors.request.use(function (config) {
@@ -15,6 +16,7 @@ disciplineRequery.interceptors.request.use(function (config) {
     return Promise.reject(error);
 });
   
+// 学科列表
 export function discipline(params) {
     return disciplineRequery({
         url: "/subject/list",
@@ -32,10 +34,28 @@ export function status(data) {
 }
 
 // 新增学科
-// export function add(data) {
-//     return disciplineRequery({
-//         url: "/subject//subject/add",
-//         method: 'post',
-//         data
-//      })
-// }
+export function add(data) {
+    return disciplineRequery({
+        url: "/subject/add",
+        method: 'post',
+        data
+     })
+}
+
+// 编辑
+export function edit(data) {
+    return disciplineRequery({
+        url: "/subject/edit",
+        method: 'post',
+        data
+     })
+}
+//  删除
+export function remove(data) {
+    return disciplineRequery({
+        url: "/subject/remove",
+        method: 'post',
+        data
+     })
+}
+

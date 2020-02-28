@@ -50,8 +50,7 @@ const router = new VueRouter({
     {
       path: '/',
       redirect: '/login'
-    }
-
+    },
   ]
 })
 let whiteArr = ["/login", "/news"]
@@ -65,7 +64,7 @@ router.beforeEach((to, from, next) => {
     info().then(res => {
       if (res.data.code == 200) {
         store.commit('changeUsername', res.data.data.username);
-        store.commit('changeAvatar', process.env.VUE_APP_URL+"/"+res.data.data.avatar);
+        store.commit('changeAvatar', process.env.VUE_APP_URL + "/" + res.data.data.avatar);
         next();
       } else if (res.data.code == 206) {
         // 如果token错误就删除token
