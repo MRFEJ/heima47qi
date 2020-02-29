@@ -183,4 +183,7 @@ body {
     overflow: hidden;
   }
 }
+.box-card1{
+  margin-top: 19px;
+}
 </style>

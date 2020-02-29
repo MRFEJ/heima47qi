@@ -117,7 +117,8 @@ export default {
       this.$refs.enterpriseCom.isCom = true;
 
       // this.$refs.enterpriseCom.cz();
-
+      window.console.log(this.$refs.enterpriseCom.form);
+      
       this.$refs.enterpriseCom.form = {};
     },
     // 点击编辑
@@ -174,6 +175,8 @@ export default {
 
     // 搜索
     search() {
+      // window.console.log(this.formInline.eid);
+      
       // this.currentPage = 1;
       this.list();
     },
