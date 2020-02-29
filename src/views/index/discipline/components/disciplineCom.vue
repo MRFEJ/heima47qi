@@ -1,5 +1,5 @@
 <template>
-  <el-dialog width="600px" center title="新增学科" :visible.sync="dialogFormVisible">
+  <el-dialog width="600px" center :title="isCom? '新增学科':'编辑学科'" :visible.sync="dialogFormVisible">
     <el-form ref="form" :model="form" :rules="rules">
       <el-form-item label="学科编号" :label-width="formLabelWidth" prop="rid">
         <el-input v-model="form.rid" autocomplete="off"></el-input>
@@ -29,18 +29,13 @@
 </template>
 
 <script>
-import { edit } from "@/api/discipline.js";
+import { add, edit } from "@/api/discipline.js";
 export default {
   data() {
     return {
+      isCom: true,
       dialogFormVisible: false,
-      form: {
-        rid: "",
-        name: "",
-        short_name: "",
-        intro: "",
-        remark: ""
-      },
+      form: {},
       formLabelWidth: "80px",
       rules: {
         rid: [{ required: true, message: "学科编号不能为空", trigger: "blur" }],
@@ -49,20 +44,40 @@ export default {
     };
   },
   methods: {
+    // 点击重置
+    cz(){
+      this.$refs.form.resetFields()
+    },
+    // 点击确定
     sure() {
       this.$refs.form.validate(v => {
         if (v) {
-          edit(this.form).then(res=>{
-            // window.console.log(res);
-            if(res.data.code==200){
-              this.$message.success('编辑成功!');
-              this.dialogFormVisible=false;
-              this.$parent.list();
-            }else{
-              this.$message.error(res.data.message)
-            }
-            
-          })
+          if (this.isCom) {
+            add(this.form).then(res => {
+              // window.console.log(res);
+              if (res.data.code == 200) {
+                this.$message.success("新增成功");
+                this.dialogFormVisible = false;
+                this.$parent.currentPage=1;
+                this.$parent.list();
+
+                this.$refs.form.resetFields();
+              } else {
+                this.$message.error(res.data.message);
+              }
+            });
+          } else {
+            edit(this.form).then(res => {
+              // window.console.log(res);
+              if (res.data.code == 200) {
+                this.$message.success("编辑成功!");
+                this.dialogFormVisible = false;
+                this.$parent.list();
+              } else {
+                this.$message.error(res.data.message);
+              }
+            });
+          }
         }
       });
     }

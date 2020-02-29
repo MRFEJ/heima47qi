@@ -24,11 +24,7 @@
         <el-form-item>
           <el-button type="primary" @click="search">搜索</el-button>
           <el-button @click="del">清除</el-button>
-          <el-button
-            @click="$refs.disciplineAdd.dialogFormVisible=true"
-            icon="el-icon-plus"
-            type="primary"
-          >新增学科</el-button>
+          <el-button @click="Add" icon="el-icon-plus" type="primary">新增学科</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -75,25 +71,25 @@
         ></el-pagination>
       </div>
     </el-card>
-    <!-- 新增 -->
-    <disciplineAdd ref="disciplineAdd"></disciplineAdd>
-    <!-- 编辑 -->
-    <disciplineEdit ref="disciplineEdit"></disciplineEdit>
+
+    <disciplineCom ref="disciplineCom"></disciplineCom>
   </div>
 </template>
 
 <script>
 // 导入编辑组件
-import disciplineEdit from "./components/disciplineEdit";
+// import disciplineCom from "./components/disciplineCom";
 // 导入新增学科组件
-import disciplineAdd from "./components/disciplineAdd";
+// import disciplineCom from "./components/disciplineCom";
 // 获取学科列表和 禁用或开启状态和 删除学科
 import { discipline, status, remove } from "@/api/discipline.js";
+
+import disciplineCom from "./components/disciplineCom";
+
 export default {
   name: "discipline",
   components: {
-    disciplineAdd,
-    disciplineEdit
+    disciplineCom
   },
   data() {
     return {
@@ -121,14 +117,28 @@ export default {
     this.list();
   },
   methods: {
+    // 点击新增
+    Add() {
+      this.$refs.disciplineCom.dialogFormVisible = true;
+
+      this.$refs.disciplineCom.isCom = true;
+
+      // this.$refs.disciplineCom.cz();
+
+      this.$refs.disciplineCom.form = {};
+    },
     // 点击编辑
     editBj(item) {
       // window.console.log(item);
-      
-      this.$refs.disciplineEdit.dialogFormVisible = true;
+      this.$refs.disciplineCom.dialogFormVisible = true;
+      this.$refs.disciplineCom.isCom = false;
+
       // 判断是不是第一次点击的那一行 如果不是就赋值 并且保存当前行的数据
       if (item != this.oldItem) {
-        this.$refs.disciplineEdit.form = { ...item };
+        // 下面这一行是错误的写法   他直接把item对象赋值给form了  相当于把item对象在内存里面地址赋给了form 这时改了form里面的数据item里面也会改  因为在内存里面他们是同一个地址的
+        // this.$refs.disciplineCom.form =item
+        // 把item用es6的语法遍历出来 加上{}就可以赋值给form了
+        this.$refs.disciplineCom.form = { ...item };
         this.oldItem = item;
       }
     },
@@ -145,10 +155,6 @@ export default {
         this.tableData = res.data.data.items;
         this.pages = res.data.data.pagination.total;
       });
-    },
-    // 点击新增
-    onSubmit() {
-      console.log("submit!");
     },
     // 分页
     handleSizeChange(val) {
@@ -175,12 +181,14 @@ export default {
 
     // 搜索
     search() {
+      // this.currentPage = 1;
       this.list();
     },
 
     // 清除表单内的数据
     del() {
       this.$refs.form.resetFields();
+      this.currentPage = 1;
       this.list();
     },
 
@@ -206,22 +214,18 @@ export default {
 };
 </script>
 
-<style>
-.box-card1 {
-  margin-top: 19px;
-}
-.box-card .short {
-  width: 100px;
-}
-.box-card .long {
-  width: 149px;
-}
-.red {
-  color: red;
-}
-.page {
-  width: 543px;
-  margin: 0 auto;
-  margin-top: 20px;
+<style lang="less">
+.qie {
+  .long {
+    width: 149px;
+  }
+  .short {
+    width: 100px;
+  }
+  .page {
+    width: 543px;
+    margin: 0 auto;
+    margin-top: 30px;
+  }
 }
 </style>
