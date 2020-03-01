@@ -117,7 +117,6 @@ export default {
           }).then(res=>{
             // window.console.log(res);
             if(res.data.code==200){
-              this.$message.success('登陆成功!');
               setToken(res.data.data.token)
               this.$router.push('/index/discipline')
             }else{
