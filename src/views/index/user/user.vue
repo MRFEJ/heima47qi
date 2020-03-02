@@ -120,6 +120,11 @@ export default {
 
       // 判断是不是第一次点击的那一行 如果不是就赋值 并且保存当前行的数据
       if (item != this.oldItem) {
+        if (item.status) {
+          this.$refs.userCom.ztai = "启用";
+        } else {
+          this.$refs.userCom.ztai = "禁用";
+        }
         // 下面这一行是错误的写法   他直接把item对象赋值给form了  相当于把item对象在内存里面地址赋给了form 这时改了form里面的数据item里面也会改  因为在内存里面他们是同一个地址的
         // this.$refs.userCom.form =item
         // 把item用es6的语法遍历出来 加上{}就可以赋值给form了

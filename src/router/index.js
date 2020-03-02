@@ -64,7 +64,6 @@ router.beforeEach((to, from, next) => {
           store.commit('changeAvatar', process.env.VUE_APP_URL + "/" + res.data.data.avatar);
           // 获取用户身份
           store.commit('userRole', res.data.data.role);
-          next();
           // window.console.log(to.meta.role);
           
           // 如果在要去的路由的meta里面没有包含该账号的身份就哪里来会哪里去  如果包含就进去
