@@ -1,24 +1,8 @@
-import axios from "axios"
-
-import { getToken } from "@/utils/token.js"
-
-let userRequery = axios.create({
-    baseURL: process.env.VUE_APP_URL,
-    withCredentials:true
-})
-
-userRequery.interceptors.request.use(function (config) {
-    // 在发送请求之前做些什么
-    config.headers.token = getToken();
-    return config;
-  }, function (error) {
-    // 对请求错误做些什么
-    return Promise.reject(error);
-});
+import Requery from "@/utils/requery"
   
 // 学科列表
 export function user(params) {
-    return userRequery({
+    return Requery({
         url: "/user/list",
         method: 'get',
         params
@@ -26,7 +10,7 @@ export function user(params) {
 }
 // 学科状态
 export function status(data) {
-    return userRequery({
+    return Requery({
         url: "/user/status",
         method: 'post',
         data
@@ -35,7 +19,7 @@ export function status(data) {
 
 // 新增学科
 export function add(data) {
-    return userRequery({
+    return Requery({
         url: "/user/add",
         method: 'post',
         data
@@ -44,7 +28,7 @@ export function add(data) {
 
 // 编辑
 export function edit(data) {
-    return userRequery({
+    return Requery({
         url: "/user/edit",
         method: 'post',
         data
@@ -52,7 +36,7 @@ export function edit(data) {
 }
 //  删除
 export function remove(data) {
-    return userRequery({
+    return Requery({
         url: "/user/remove",
         method: 'post',
         data
