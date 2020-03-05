@@ -164,7 +164,7 @@ body {
   }
   .my_main {
     background-color: yellowgreen;
-    overflow: hidden;
+    // overflow: hidden;
   }
 }
 .box-card1 {

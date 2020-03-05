@@ -3,18 +3,12 @@
     <el-card class="box-card1">
       <el-form ref="form" :inline="true" :model="formInline" class="demo-form-inline">
         <el-form-item prop="subject" label="学科">
-          <el-select v-model="formInline.subject" placeholder="请选择学科">
-            <el-option
-              v-for="(item, index) in disciplineList"
-              :key="index"
-              :label="item.name"
-              :value="item.id"
-            ></el-option>
-          </el-select>
+          <subjectSeleted :isok="true" v-model="formInline.subject"></subjectSeleted>
         </el-form-item>
 
         <el-form-item prop="step" label="阶段">
           <el-select v-model="formInline.step" placeholder="请选择阶段">
+            <el-option label="全部阶段" value></el-option>
             <el-option label="初级" value="1"></el-option>
             <el-option label="中级" value="2"></el-option>
             <el-option label="高级" value="3"></el-option>
@@ -22,18 +16,12 @@
         </el-form-item>
 
         <el-form-item prop="enterprise" label="企业">
-          <el-select v-model="formInline.enterprise" placeholder="请选择企业">
-            <el-option
-              v-for="(item, index) in enterpriseList"
-              :key="index"
-              :label="item.name"
-              :value="item.id"
-            ></el-option>
-          </el-select>
+          <enterpriseSeleted :isok="true" v-model="formInline.enterprise"></enterpriseSeleted>
         </el-form-item>
 
         <el-form-item prop="type" label="题型">
           <el-select v-model="formInline.type" placeholder="请选择题型">
+            <el-option label="全部题型" value></el-option>
             <el-option label="单选" value="1"></el-option>
             <el-option label="多选" value="2"></el-option>
             <el-option label="简答" value="3"></el-option>
@@ -42,6 +30,7 @@
         <br />
         <el-form-item prop="difficulty" label="难度">
           <el-select v-model="formInline.difficulty" placeholder="请选择难度">
+            <el-option label="全部难度" value></el-option>
             <el-option label="简单" value="1"></el-option>
             <el-option label="一般" value="2"></el-option>
             <el-option label="困难" value="3"></el-option>
@@ -54,6 +43,7 @@
 
         <el-form-item prop="status" label="状态">
           <el-select v-model="formInline.status" placeholder="请选择状态">
+            <el-option label="全部状态" value></el-option>
             <el-option label="启用" value="1"></el-option>
             <el-option label="禁用" value="0"></el-option>
           </el-select>
@@ -89,7 +79,7 @@
         <el-table-column prop="type" label="题型">
           <template slot-scope="scope">{{scope.row|types}}</template>
         </el-table-column>
-        <el-table-column prop="enterprise" label="企业"></el-table-column>
+        <el-table-column prop="enterprise_name" label="企业"></el-table-column>
         <el-table-column prop="username" label="创建者"></el-table-column>
         <el-table-column label="状态">
           <template slot-scope="scope">
@@ -106,7 +96,7 @@
           v-if="['超级管理员', '管理员', '老师'].includes($store.state.Role)"
         >
           <template slot-scope="scope">
-            <el-button size="mini" type="text">编辑</el-button>
+            <el-button size="mini" @click="edit(scope.row)" type="text">编辑</el-button>
             <el-button
               size="mini"
               type="text"
@@ -136,22 +126,31 @@
         ></el-pagination>
       </div>
     </el-card>
+
+    <!-- 子组件 -->
+    <questionAdd ref="questionAdd"></questionAdd>
+
+    <questionEdit ref="questionEdit"></questionEdit>
   </div>
 </template>
 
 <script>
-// 导入学科列表的请求
-import { discipline } from "@/api/discipline.js";
-// 导入企业列表的请求
-import { enterprise } from "@/api/enterprise.js";
-
 // 获取本组件的请求
 import {
   questionLisi,
   questionStatus,
   questionRemove
 } from "@/api/question.js";
+// 导入子组件
+import questionAdd from "./components/questionAdd";
+
+import questionEdit from "./components/questionEdit";
 export default {
+  components: {
+    questionAdd,
+    questionEdit
+  },
+  name: "question",
   data() {
     return {
       // 学科列表
@@ -172,17 +171,6 @@ export default {
     };
   },
   created() {
-    // 获取学科列表
-    discipline({ status: 1 }).then(res => {
-      // window.console.log(res);
-      this.disciplineList = res.data.data.items;
-    });
-    // 获取企业列表
-    enterprise({ status: 1 }).then(res => {
-      // window.console.log(res);
-      this.enterpriseList = res.data.data.items;
-    });
-
     // 获取题目列表
     this.list();
   },
@@ -264,31 +252,60 @@ export default {
     },
     // 点击删除题目
     remov(id) {
-      questionRemove({ id }).then(() => {
-        this.list();
-      });
+      this.$confirm("此操作将删除该题目, 是否继续?", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          questionRemove({ id }).then(() => {
+            this.$message.success("删除成功!");
+            this.list();
+          });
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消删除"
+          });
+        });
     },
     // 点击新增题目
-    Add() {}
+    Add() {
+      this.$refs.questionAdd.dialogFormVisible = true;
+    },
+    // 点击编辑
+    edit(item) {
+      this.$refs.questionEdit.form = { ...item };
+      this.$refs.questionEdit.form.city = this.$refs.questionEdit.form.city.split(
+        ","
+      );
+      this.$refs.questionEdit.form.multiple_select_answer = this.$refs.questionEdit.form.multiple_select_answer.split(
+        ","
+      );
+      this.$refs.questionEdit.dialogFormVisible = true;
+    }
   }
 };
 </script>
 
 <style lang="less">
 .bb {
-  .el-form-item:not(:last-child) .el-form-item__content {
-    width: 150px;
-  }
+  .el-form--inline {
+    .el-form-item:not(:last-child) .el-form-item__content {
+      width: 150px;
+    }
 
-  .el-form-item.title-item .el-form-item__content {
-    width: 388px;
-  }
-  .el-form-item__label {
-    padding-right: 31px;
-    padding-left: 41px;
-  }
-  .el-card__body {
-    padding-left: 0;
+    .el-form-item.title-item .el-form-item__content {
+      width: 388px;
+    }
+    .el-form-item__label {
+      padding-right: 31px;
+      padding-left: 41px;
+    }
+    .el-card__body {
+      padding-left: 0;
+    }
   }
 
   .box-card {
