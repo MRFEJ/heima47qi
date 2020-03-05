@@ -20,8 +20,12 @@
       <!-- 侧边导航 -->
       <el-aside width="auto" class="my_aside">
         <el-menu router default-active="1" class="el-menu-vertical-demo" :collapse="isCollapse">
-          <template v-for="(item, index) in reot"  > 
-            <el-menu-item :index="'/index/'+item.path" :key="index" v-if="item.meta.role.includes($store.state.Role)">
+          <template v-for="(item, index) in reot">
+            <el-menu-item
+              :index="'/index/'+item.path"
+              :key="index"
+              v-if="item.meta.role.includes($store.state.Role)"
+            >
               <i :class="item.meta.icon"></i>
               <span slot="title">{{item.meta.title}}</span>
             </el-menu-item>
@@ -38,7 +42,7 @@
 
 <script>
 // 导入抽离出来的子路由
-import reot from "@/router/reot.js"
+import reot from "@/router/reot.js";
 import { logout } from "@/api/index.js";
 import { removeToken, getToken } from "@/utils/token.js";
 export default {
@@ -165,9 +169,9 @@ body {
   .my_main {
     background-color: yellowgreen;
     // overflow: hidden;
+    .box-card1 {
+      margin-top: 19px;
+    }
   }
-}
-.box-card1 {
-  margin-top: 19px;
 }
 </style>
